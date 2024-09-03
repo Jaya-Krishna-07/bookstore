@@ -26,7 +26,6 @@ public class Book {
     @Column(nullable = false)
     private String description;
 
-//    @Column(nullable = false)
     @ManyToOne
     @JoinColumn(name = "genre_id")
     private Genre genre;

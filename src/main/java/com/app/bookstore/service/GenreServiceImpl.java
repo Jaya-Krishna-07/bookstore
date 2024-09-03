@@ -1,5 +1,6 @@
 package com.app.bookstore.service;
 
+import com.app.bookstore.entity.Book;
 import com.app.bookstore.entity.Genre;
 import com.app.bookstore.exception.ResourceNotFoundException;
 import com.app.bookstore.repository.GenreRepository;
@@ -46,6 +47,13 @@ public class GenreServiceImpl implements GenreService{
             genreRepository.deleteById(genreId);
             return "successfully deleted";
         }
-        return "unsuccessfull";
+        return "unsuccessful";
     }
+
+    @Override
+    public Genre getGenreByName(String genreName) {
+        return genreRepository.findByName(genreName);
+    }
+
+
 }

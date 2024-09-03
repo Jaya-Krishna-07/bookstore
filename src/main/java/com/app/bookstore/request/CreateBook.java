@@ -1,0 +1,15 @@
+package com.app.bookstore.request;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class CreateBook {
+    String title;
+    String author;
+    String description;
+    String genre;
+}

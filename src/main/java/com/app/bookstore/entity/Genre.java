@@ -1,5 +1,6 @@
 package com.app.bookstore.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,5 +25,6 @@ public class Genre {
     private String name;
 
     @OneToMany(mappedBy = "genre")
+    @JsonIgnore
     private List<Book> books = new ArrayList<>();
 }

@@ -1,8 +1,10 @@
 package com.app.bookstore.service;
 
 import com.app.bookstore.entity.Book;
+import com.app.bookstore.entity.Genre;
 import com.app.bookstore.exception.ResourceNotFoundException;
 import com.app.bookstore.repository.BookRepository;
+import com.app.bookstore.request.CreateBook;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +15,20 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService{
     private final BookRepository bookRepository;
+    private final GenreService genreService;
     @Override
-    public Book createBook(Book book) {
+    public Book createBook(CreateBook createBookRequest) {
+        Genre genre = genreService.getGenreByName(createBookRequest.getGenre());
+        if (genre == null){
+            genre = new Genre();
+            genre.setName(createBookRequest.getGenre());
+            genre = genreService.createGenre(genre);
+        }
+        Book book = new Book();
+        book.setTitle(createBookRequest.getTitle());
+        book.setAuthor(createBookRequest.getAuthor());
+        book.setDescription(createBookRequest.getDescription());
+        book.setGenre(genre);
         return bookRepository.save(book);
     }
 
@@ -49,5 +63,11 @@ public class BookServiceImpl implements BookService{
     @Override
     public void deleteBook(Long bookId) {
         bookRepository.deleteById(bookId);
+    }
+
+    @Override
+    public List<Book> getBooksByGenre(String genreName) {
+        List<Book> booksByGenreName = bookRepository.findBooksByGenreName(genreName);
+        return booksByGenreName;
     }
 }

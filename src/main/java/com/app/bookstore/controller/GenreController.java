@@ -22,6 +22,10 @@ public class GenreController {
     public ResponseEntity<Genre> getGenreById(@PathVariable Long genreId){
         return ResponseEntity.ok().body(genreService.getGenreById(genreId));
     }
+    @GetMapping("/byName/{genreName}")
+    public ResponseEntity<Genre> getGenreByName(@PathVariable String genreName){
+        return ResponseEntity.ok().body(genreService.getGenreByName(genreName));
+    }
     @PostMapping
     public ResponseEntity<Genre> createGenre(@RequestBody Genre genre){
         return ResponseEntity.ok().body(genreService.createGenre(genre));

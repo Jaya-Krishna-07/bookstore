@@ -1,5 +1,6 @@
 package com.app.bookstore.service;
 
+import com.app.bookstore.entity.Book;
 import com.app.bookstore.entity.Genre;
 import org.springframework.http.ResponseEntity;
 
@@ -15,4 +16,6 @@ public interface GenreService {
     Genre updateGenre(Long genreId, Genre genre);
 
     String deleteGenre(Long genreId);
+
+    Genre getGenreByName(String genreName);
 }
