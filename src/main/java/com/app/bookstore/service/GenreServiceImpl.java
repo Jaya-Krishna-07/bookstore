@@ -7,11 +7,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class GenreServiceImpl implements GenreService{
+public class GenreServiceImpl implements GenreService {
     private final GenreRepository genreRepository;
+
     @Override
     public List<Genre> getAllGenres() {
         return genreRepository.findAll();
@@ -20,8 +22,9 @@ public class GenreServiceImpl implements GenreService{
     @Override
     public Genre getGenreById(Long genreId) {
         return genreRepository.findById(genreId)
-                .orElseThrow(() -> { throw new NotFoundException("genre not found with id: " + genreId);
-        });
+                .orElseThrow(() -> {
+                    throw new NotFoundException("genre not found with id: " + genreId);
+                });
     }
 
     @Override
@@ -42,16 +45,28 @@ public class GenreServiceImpl implements GenreService{
 
     @Override
     public String deleteGenre(Long genreId) {
-        if (genreRepository.findById(genreId).isPresent()){
-            genreRepository.deleteById(genreId);
-            return "successfully deleted";
+        System.out.println("inside deleteGenre(Long genreId)");
+        Optional<Genre> genreById = genreRepository.findById(genreId);
+        if (genreById.isEmpty()) {
+            throw new NotFoundException("genre with id: " + genreById + " does not exist!");
         }
-        return "unsuccessful";
+        genreRepository.deleteById(genreId);
+        return "successful";
     }
 
     @Override
     public Genre getGenreByName(String genreName) {
         return genreRepository.findByName(genreName);
+    }
+
+    @Override
+    public String deleteGenreByName(String genreName) {
+        System.out.println("inside the service method deleteGenreByName(String genreName)");
+        Genre genreByName = genreRepository.findByName(genreName);
+        if (genreByName == null) {
+            throw new NotFoundException("Genre not found with the name: " + genreName);
+        }
+        return deleteGenre(genreByName.getId());
     }
 
 

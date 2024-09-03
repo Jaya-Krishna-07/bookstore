@@ -2,6 +2,7 @@ package com.app.bookstore.controller;
 
 import com.app.bookstore.entity.Book;
 import com.app.bookstore.exception.AlreadyExistsException;
+import com.app.bookstore.exception.NotFoundException;
 import com.app.bookstore.request.CreateBook;
 import com.app.bookstore.service.BookService;
 import lombok.RequiredArgsConstructor;
@@ -52,9 +53,15 @@ public class BookController {
     }
 
     @PutMapping("/{bookId}")
-    public ResponseEntity<Book> updateBook(@PathVariable Long bookId, @RequestBody Book book) {
-        Book updatedBook = bookService.updateBook(bookId, book);
-        return new ResponseEntity<>(updatedBook, HttpStatus.OK);
+    public ResponseEntity<?> updateBook(@PathVariable Long bookId, @RequestBody Book book) {
+        try {
+            Book updatedBook = bookService.updateBook(bookId, book);
+            return ResponseEntity.ok(updatedBook);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
 
