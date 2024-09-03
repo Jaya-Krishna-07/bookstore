@@ -1,8 +1,7 @@
 package com.app.bookstore.service;
 
-import com.app.bookstore.entity.Book;
 import com.app.bookstore.entity.Genre;
-import com.app.bookstore.exception.ResourceNotFoundException;
+import com.app.bookstore.exception.NotFoundException;
 import com.app.bookstore.repository.GenreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class GenreServiceImpl implements GenreService{
     @Override
     public Genre getGenreById(Long genreId) {
         return genreRepository.findById(genreId)
-                .orElseThrow(() -> { throw new ResourceNotFoundException("genre not found with id: " + genreId);
+                .orElseThrow(() -> { throw new NotFoundException("genre not found with id: " + genreId);
         });
     }
 
@@ -34,7 +33,7 @@ public class GenreServiceImpl implements GenreService{
     public Genre updateGenre(Long genreId, Genre genre) {
         Genre existingGenre = genreRepository.findById(genreId)
                 .orElseThrow(() -> {
-                            throw new ResourceNotFoundException("genre not found with id: " + genreId);
+                            throw new NotFoundException("genre not found with id: " + genreId);
                         }
                 );
         existingGenre.setName(genre.getName());

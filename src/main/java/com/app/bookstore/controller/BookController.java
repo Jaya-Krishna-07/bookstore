@@ -1,6 +1,7 @@
 package com.app.bookstore.controller;
 
 import com.app.bookstore.entity.Book;
+import com.app.bookstore.exception.AlreadyExistsException;
 import com.app.bookstore.request.CreateBook;
 import com.app.bookstore.service.BookService;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,15 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<Book> createBook(@RequestBody CreateBook createBookRequest) {
-        Book createdBook = bookService.createBook(createBookRequest);
-        return ResponseEntity.ok().body(createdBook);
+    public ResponseEntity<?> createBook(@RequestBody CreateBook createBookRequest) {
+        try {
+            Book createdBook = bookService.createBook(createBookRequest);
+            return ResponseEntity.ok(createdBook);
+        } catch (AlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @GetMapping("/{bookId}")
@@ -37,6 +44,11 @@ public class BookController {
     public ResponseEntity<List<Book>> getAllBooks() {
         List<Book> allBooks = bookService.getAllBooks();
         return new ResponseEntity<>(allBooks, HttpStatus.OK);
+    }
+    @GetMapping("/byGenre/{genreName}")
+    public ResponseEntity<List<Book>> getBooksByGenre(@PathVariable String genreName) {
+        List<Book> booksByGenre = bookService.getBooksByGenre(genreName);
+        return ResponseEntity.ok().body(booksByGenre);
     }
 
     @PutMapping("/{bookId}")
@@ -52,10 +64,6 @@ public class BookController {
         return new ResponseEntity<>("book was deleted successfully", HttpStatus.OK);
     }
 
-    @GetMapping("/byGenre/{genreName}")
-    public ResponseEntity<List<Book>> getBooksByGenre(@PathVariable String genreName) {
-        List<Book> booksByGenre = bookService.getBooksByGenre(genreName);
-        return null;
-    }
+
 
 }

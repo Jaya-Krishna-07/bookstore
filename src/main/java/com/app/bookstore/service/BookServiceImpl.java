@@ -2,7 +2,8 @@ package com.app.bookstore.service;
 
 import com.app.bookstore.entity.Book;
 import com.app.bookstore.entity.Genre;
-import com.app.bookstore.exception.ResourceNotFoundException;
+import com.app.bookstore.exception.AlreadyExistsException;
+import com.app.bookstore.exception.NotFoundException;
 import com.app.bookstore.repository.BookRepository;
 import com.app.bookstore.request.CreateBook;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +19,21 @@ public class BookServiceImpl implements BookService{
     private final GenreService genreService;
     @Override
     public Book createBook(CreateBook createBookRequest) {
+//        search for an existing genre using the name
         Genre genre = genreService.getGenreByName(createBookRequest.getGenre());
+//        if genre does not exist, create it
         if (genre == null){
             genre = new Genre();
             genre.setName(createBookRequest.getGenre());
             genre = genreService.createGenre(genre);
         }
-        Book book = new Book();
+//        check if a book with the given title already exists, and throw an error if it exists because titles are unique
+        Book book = bookRepository.findByTitle(createBookRequest.getTitle());
+        if (book != null) {
+            throw new AlreadyExistsException("book with the title: " + createBookRequest.getTitle() + " already exists!");
+        }
+//        create a book
+        book = new Book();
         book.setTitle(createBookRequest.getTitle());
         book.setAuthor(createBookRequest.getAuthor());
         book.setDescription(createBookRequest.getDescription());
@@ -47,7 +56,7 @@ public class BookServiceImpl implements BookService{
     public Book updateBook(Long bookId, Book book) {
         // Check if the book with bookId exists
         Book existingBook = bookRepository.findById(bookId)
-                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id " + bookId));
+                .orElseThrow(() -> new NotFoundException("Book not found with id " + bookId));
 
         // Update the existing book details
         existingBook.setTitle(book.getTitle());

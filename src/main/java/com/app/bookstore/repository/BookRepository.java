@@ -10,4 +10,6 @@ import java.util.List;
 public interface BookRepository extends JpaRepository<Book, Long> {
     @Query("SELECT b FROM Book b WHERE b.genre.name= :genreName")
     List<Book> findBooksByGenreName(@Param("genreName") String genreName);
+
+    Book findByTitle(String title);
 }
