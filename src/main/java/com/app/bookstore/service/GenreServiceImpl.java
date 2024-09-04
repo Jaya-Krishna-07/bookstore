@@ -1,6 +1,7 @@
 package com.app.bookstore.service;
 
 import com.app.bookstore.entity.Genre;
+import com.app.bookstore.exception.AlreadyExistsException;
 import com.app.bookstore.exception.NotFoundException;
 import com.app.bookstore.repository.GenreRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,23 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
+    public Genre getGenreByName(String genreName) {
+        Genre genre = genreRepository.findByName(genreName)
+                .orElseThrow(() -> {
+                    throw new NotFoundException("genre not found with name: " + genreName);
+                });
+        if (genre == null) {
+            throw new NotFoundException("genre not found with name: " + genreName);
+        }
+        return genre;
+    }
+
+    @Override
     public Genre createGenre(Genre genre) {
+        Optional<Genre> genreByName = genreRepository.findByName(genre.getName());
+        if (genreByName.isPresent()) {
+            throw new AlreadyExistsException("genre already exists with name: " + genre.getName());
+        }
         return genreRepository.save(genre);
     }
 
@@ -43,29 +60,25 @@ public class GenreServiceImpl implements GenreService {
         return genreRepository.save(existingGenre);
     }
 
+
     @Override
     public String deleteGenre(Long genreId) {
         System.out.println("inside deleteGenre(Long genreId)");
-        Optional<Genre> genreById = genreRepository.findById(genreId);
-        if (genreById.isEmpty()) {
-            throw new NotFoundException("genre with id: " + genreById + " does not exist!");
-        }
+        Genre genreById = genreRepository.findById(genreId)
+                .orElseThrow(() -> {
+                    throw new NotFoundException("genre not found with id: " + genreId);
+                });
         genreRepository.deleteById(genreId);
         return "successful";
     }
 
     @Override
-    public Genre getGenreByName(String genreName) {
-        return genreRepository.findByName(genreName);
-    }
-
-    @Override
     public String deleteGenreByName(String genreName) {
         System.out.println("inside the service method deleteGenreByName(String genreName)");
-        Genre genreByName = genreRepository.findByName(genreName);
-        if (genreByName == null) {
-            throw new NotFoundException("Genre not found with the name: " + genreName);
-        }
+        Genre genreByName = genreRepository.findByName(genreName)
+                .orElseThrow(() -> {
+                    throw new NotFoundException("genre not found with name: " + genreName);
+                });
         return deleteGenre(genreByName.getId());
     }
 
