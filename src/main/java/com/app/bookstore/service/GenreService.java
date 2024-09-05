@@ -18,4 +18,6 @@ public interface GenreService {
     String deleteGenre(Long genreId);
 
     Genre getGenreByName(String genreName);
+
+    String deleteGenreByName(String genreName);
 }

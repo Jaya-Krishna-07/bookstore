@@ -1,17 +1,20 @@
 package com.app.bookstore.service;
 
 import com.app.bookstore.entity.Genre;
+import com.app.bookstore.exception.AlreadyExistsException;
 import com.app.bookstore.exception.NotFoundException;
 import com.app.bookstore.repository.GenreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class GenreServiceImpl implements GenreService{
+public class GenreServiceImpl implements GenreService {
     private final GenreRepository genreRepository;
+
     @Override
     public List<Genre> getAllGenres() {
         return genreRepository.findAll();
@@ -20,12 +23,29 @@ public class GenreServiceImpl implements GenreService{
     @Override
     public Genre getGenreById(Long genreId) {
         return genreRepository.findById(genreId)
-                .orElseThrow(() -> { throw new NotFoundException("genre not found with id: " + genreId);
-        });
+                .orElseThrow(() -> {
+                    throw new NotFoundException("genre not found with id: " + genreId);
+                });
+    }
+
+    @Override
+    public Genre getGenreByName(String genreName) {
+        Genre genre = genreRepository.findByName(genreName)
+                .orElseThrow(() -> {
+                    throw new NotFoundException("genre not found with name: " + genreName);
+                });
+        if (genre == null) {
+            throw new NotFoundException("genre not found with name: " + genreName);
+        }
+        return genre;
     }
 
     @Override
     public Genre createGenre(Genre genre) {
+        Optional<Genre> genreByName = genreRepository.findByName(genre.getName());
+        if (genreByName.isPresent()) {
+            throw new AlreadyExistsException("genre already exists with name: " + genre.getName());
+        }
         return genreRepository.save(genre);
     }
 
@@ -40,18 +60,26 @@ public class GenreServiceImpl implements GenreService{
         return genreRepository.save(existingGenre);
     }
 
+
     @Override
     public String deleteGenre(Long genreId) {
-        if (genreRepository.findById(genreId).isPresent()){
-            genreRepository.deleteById(genreId);
-            return "successfully deleted";
-        }
-        return "unsuccessful";
+        System.out.println("inside deleteGenre(Long genreId)");
+        Genre genreById = genreRepository.findById(genreId)
+                .orElseThrow(() -> {
+                    throw new NotFoundException("genre not found with id: " + genreId);
+                });
+        genreRepository.deleteById(genreId);
+        return "successful";
     }
 
     @Override
-    public Genre getGenreByName(String genreName) {
-        return genreRepository.findByName(genreName);
+    public String deleteGenreByName(String genreName) {
+        System.out.println("inside the service method deleteGenreByName(String genreName)");
+        Genre genreByName = genreRepository.findByName(genreName)
+                .orElseThrow(() -> {
+                    throw new NotFoundException("genre not found with name: " + genreName);
+                });
+        return deleteGenre(genreByName.getId());
     }
 
 

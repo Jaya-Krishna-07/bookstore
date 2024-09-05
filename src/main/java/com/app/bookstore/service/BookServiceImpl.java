@@ -43,8 +43,11 @@ public class BookServiceImpl implements BookService{
 
     @Override
     public Book getBookById(Long bookId) {
-        Optional<Book> optionalBook = bookRepository.findById(bookId);
-        return optionalBook.get();
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> {
+                    throw new NotFoundException("book not found with id: " + bookId);
+                });
+        return book;
     }
 
     @Override
@@ -71,6 +74,11 @@ public class BookServiceImpl implements BookService{
 
     @Override
     public void deleteBook(Long bookId) {
+        Optional<Book> bookById = bookRepository.findById(bookId);
+        if (bookById.isEmpty()) {
+            throw new NotFoundException("book with the id: " + bookById + " does not exist");
+        }
+        
         bookRepository.deleteById(bookId);
     }
 
